@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cesium Viewer</title>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <style>
+        #cesiumContainer {
+            width: 100%;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="cesiumContainer"></div>
+</body>
+</html>
+
+<script>
+    // Initialize the Cesium Viewer
+    const viewer = new Cesium.Viewer('cesiumContainer', {
+        terrainProvider: Cesium.createWorldTerrain(),
+        baseLayerPicker: false, // Disable base layer picker for simplicity
+    });
+</script>
+
+<script>
+    // Load a Cesium Ion asset
+    const assetId = 123456; // Replace with your Cesium Ion Asset ID
+    Cesium.IonResource.fromAssetId(assetId).then(resource => {
+        viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
+            url: resource
+        }));
+    });
+</script>
+
+<script>
+    // Set the initial camera view
+    viewer.camera.setView({
+        destination: Cesium.Cartesian3.fromDegrees(-74.0707383, 40.7117244, 1500.0), // Example coordinates
+        orientation: {
+            heading: Cesium.Math.toRadians(0.0),
+            pitch: Cesium.Math.toRadians(-45.0),
+            roll: 0.0,
+        }
+    });
+
+    // Add a pin at a location
+    viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(-74.0707383, 40.7117244),
+        point: { pixelSize: 10, color: Cesium.Color.RED }
+    });
+</script>
+<script>
+    // Handle left-click events
+    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+    handler.setInputAction((movement) => {
+        const pickedObject = viewer.scene.pick(movement.position);
+        if (Cesium.defined(pickedObject)) {
+            alert('You clicked on an object!');
+        }
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+</script>
